@@ -1,5 +1,10 @@
 public class Block {
 	
+/**
+ * Block class that stores information on blocks.
+ * @author Dickson Lui, Jesse Luo
+ */
+	
 	private int myRow;
 	private int myCol;
 	private int myHeight;
@@ -18,8 +23,8 @@ public class Block {
 		
 		myRow = Integer.parseInt(corners[0]);
 		myCol = Integer.parseInt(corners[1]);
-		myHeight = Integer.parseInt(corners[2]) - myRow;
-		myWidth = Integer.parseInt(corners[3]) - myCol;
+		myHeight = Integer.parseInt(corners[2]) - myRow + 1;
+		myWidth = Integer.parseInt(corners[3]) - myCol + 1;
 	}
 	
 	public int getRow () {
@@ -40,5 +45,15 @@ public class Block {
 	public int getWidth () {
 		// Returns the width (left to right) of the block.
 		return this.myWidth;
+	}
+	
+	public void setRow (int row) {
+		// Setting the new top left corner of the block.
+		this.myRow = row;
+	}
+	
+	public void setCol (int col) {
+		// Setting the new top left column of the block after shifting the block.
+		this.myCol = col;
 	}
 }

@@ -69,6 +69,7 @@ public class TrayReader {
 	    		this.startingTray.addBlock(curStartLine);
 	    		curStartLine = boardStart.readLine();
 	    	}
+	    	this.startingTray.sortBlocks();
 	    }
 	    
 	    void makeGoalTray (String arg) {
@@ -82,6 +83,7 @@ public class TrayReader {
 	    		goalTray.addBlock(curGoalLine);
 	    		curGoalLine = boardGoal.readLine();
 	    	}
+	    	this.goalTray.sortBlocks();
 	    }
 
 	}

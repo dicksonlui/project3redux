@@ -1,5 +1,10 @@
 import java.util.*;
 
+/**
+ * Tray class that carries all blocks and relevant information.
+ * @author Dickson Lui, Jesse Luo
+ */
+
 public class Tray implements Comparable<Tray> {
 	
 	private ArrayList<Block> myBlocks;
@@ -14,6 +19,13 @@ public class Tray implements Comparable<Tray> {
 		myWidth = columns;
 		myBlocks = new ArrayList<Block>(rows * columns / 2);
 		mySpace = new boolean[rows][columns];
+	}
+	
+	private Tray (Tray previousTray, int move) {
+		// Constructs a board given an existing board and a move.
+		myHeight = previousTray.getHeight();
+		myWidth = previousTray.getWidth();
+		
 	}
 	
 	public ArrayList<Block> getBlocks () {
@@ -48,13 +60,92 @@ public class Tray implements Comparable<Tray> {
 		myBlocks.add(toAdd);
 	}
 	
+	public void sortBlocks () {
+		// When called on a Tray class, InsertionSorts the block into increasing order 
+		// by row, then column.
+		ArrayList<Block> toBeSorted = this.getBlocks();
+		ArrayList<Block> tempBlocks = new ArrayList<Block>(toBeSorted.size());
+		
+		while (toBeSorted.size() > 0) {
+			Block currBlock = toBeSorted.get(0);
+			for (Block compareBlock: toBeSorted) {
+				if (compareBlock.getRow() < currBlock.getRow()) {
+					currBlock = compareBlock;
+				} else if (compareBlock.getRow() == currBlock.getRow()) {
+					if (compareBlock.getCol() < currBlock.getCol()) {
+						currBlock = compareBlock;
+					}
+				}
+			}
+			tempBlocks.add(currBlock);
+			toBeSorted.remove(currBlock);
+		}
+		this.myBlocks = tempBlocks;
+	}
+	
+	private boolean hasBlock (int row, int column) {
+		// Returns true if a block occupies this space and false if it does not.
+		return this.getSpace()[row][column];
+	}
+	
+	public LinkedList<Tray> generateMoves () {
+		// When called on a tray, generates a Linked List structure with every possible tray
+		// configuration that could result from moving a block.
+		LinkedList<Tray> possibleTrays = new LinkedList<Tray>();
+		
+		for (Block currBlock: this.getBlocks()) {
+			
+			boolean canUp = true;
+			boolean canDown = true;
+			boolean canLeft = true;
+			boolean canRight = true;
+			
+			// If this block can move up, generate the move and add it to the LinkedList.
+			if (currBlock.getRow() != 0) {
+				
+				if (canUp) {
+					// Generate move here.
+				}
+			}
+			// If this block can move down, generate the move and add it to the LinkedList.
+			if (currBlock.getRow() + currBlock.getHeight() < this.getHeight()) {
+				
+				if (canDown) {
+					// Generate move here.
+				}
+			}
+			// If this block can move left, generate the move and add it to the LinkedList.
+			if (currBlock.getCol() != 0) {
+				
+				if (canLeft) {
+					// Generate move here.
+				}
+			}
+			// If this block can move right, generate the move and add it to the LinkedList.
+			if (currBlock.getCol() + currBlock.getWidth() < this.getWidth()) {
+				for (int i = currBlock.getRow(); i < currBlock.getRow() + currBlock.getHeight(); i++) {
+					if (this.getSpace()[i][currBlock.getCol() + currBlock.getWidth()]) {
+						canRight = false;
+					}
+				}
+				if (canRight) {
+					// Generate move here.
+				}
+			}
+			
+		}
+		
+		return possibleTrays;
+	}
+	
 	public int score (ArrayList<Block> current, ArrayList<Block> goal) {
+		// Scores the Tray based on how close the current board configuration is to the goal board
+		// configuration. This will help us implement our comparable interface to determine the best
+		// Tray route to take.
 		int [] scores = new int[goal.size()];
 		ArrayList<Integer> blockUsed = new ArrayList<Integer>();
 		
 		for (int i = 0; i < goal.size(); i++) {
-			// score will be reduced, but we want '<' to work properly. 
-			// so we just input a very large number
 			scores[i] = 99999999;
 			int gwidth = goal.get(i).getWidth();
 			int gheight = goal.get(i).getHeight();
@@ -83,11 +174,13 @@ public class Tray implements Comparable<Tray> {
 	}
 	
     public String toString () {
+    	// Hash code toString method that prints out the information for each block.
+    	// (Top left row, top left column, height of block, width of block)
         String string = "";
         for (int i = 0; i < myBlocks.size(); i++) {
         	Block currBlock = myBlocks.get(i);
         	string = string + currBlock.getRow() + " " + currBlock.getCol() + " " 
-        				    + currBlock.getHeight() + " " + currBlock.getWidth();
+        				    + currBlock.getHeight() + " " + currBlock.getWidth() + "\n";
         }     
         return string;
     }
