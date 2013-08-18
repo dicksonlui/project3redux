@@ -1,9 +1,8 @@
 import java.util.*;
 
-/*
+/**
  * Solver class. Solves sliding block puzzles.
  * @author Dickson Lui, Jesse Luo
- *
  */
 
 public class Solver {
@@ -11,13 +10,15 @@ public class Solver {
 	private String debugOption;
 	private Tray myStart;
 	private Tray myGoal;
-	
 	private boolean printMoves = false;
 	private boolean printNumber = false;
 	private int numberofMoves = 0;
 	private boolean runtime = false;
 	
-	Solver (String debug, Tray start, Tray end) {
+	PriorityQueue<Tray> fringe;
+	HashSet<Tray> previousConfigs;
+	
+	public Solver (String debug, Tray start, Tray end) {
 		// Solver object with a debugging argument passed in.
 		
 		// Error handling: Checking if the debug argument starts with "-o"
@@ -65,13 +66,45 @@ public class Solver {
 				}
 			}
 		}
+		
+		fringe = new PriorityQueue<Tray>();
+		previousConfigs = new HashSet<Tray>();
+		fringe.add(start);
 	}
 	
-	Solver (Tray start, Tray end) {
+	public Solver (Tray start, Tray end) {
 		// Solver object withOUT a debugging argument passed in.
 		this.debugOption = null;
 		this.myStart = start;
 		this.myGoal = end;
+		fringe = new PriorityQueue<Tray>();
+		previousConfigs = new HashSet<Tray>();
+		fringe.add(start);
+	}
+	
+	public void makeMove () {
+		Tray popped = fringe.poll();
+		
+		// Checks if the popped board is complete.
+		if (isDone(popped, myGoal)) {
+			// DONE
+		}
+		
+		// If the Tray has already been visited, ignore it and try again.
+		while (previousConfigs.contains(popped)) {
+			popped = fringe.poll();
+		}
+		
+		// Once a new tray is found, add it to the previous configurations.
+		previousConfigs.add(popped);
+		
+		// Generate all possible moves, assign scores, and add them to the queue.
+		LinkedList<Tray> generatedMoves = popped.generateMoves();
+		for (int i = 0; i < generatedMoves.size(); i++) {
+			Tray currentTray = generatedMoves.get(i);
+			currentTray.myScore = currentTray.score(currentTray.getBlocks(), myGoal.getBlocks());
+			fringe.add(currentTray);
+		}
 	}
 	
 	
@@ -82,9 +115,12 @@ public class Solver {
 		
 		TrayReader toSolve = new TrayReader(args);
 		
+		// No debugging argument.
 		if (args.length == 2) {
 			mySolver = new Solver(toSolve.startingTray(), toSolve.goalTray());
 		}
+		
+		// Debugging argument passed in.
 		else if (args.length == 3) {
 			mySolver = new Solver(toSolve.debugOption(), toSolve.startingTray(), toSolve.goalTray());
 		} else {
