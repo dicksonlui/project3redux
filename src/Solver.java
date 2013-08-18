@@ -29,6 +29,7 @@ public class Solver {
 		// Instance Variables
 		this.debugOption = debug;
 		this.myStart = start;
+		this.myStart.myScore = myStart.score(myStart.getBlocks(), myGoal.getBlocks());
 		this.myGoal = end;
 
 		// Checking the debugging options.
@@ -76,10 +77,11 @@ public class Solver {
 		// Solver object withOUT a debugging argument passed in.
 		this.debugOption = null;
 		this.myStart = start;
+		this.myStart.myScore = myStart.score(myStart.getBlocks(), myGoal.getBlocks());
 		this.myGoal = end;
 		fringe = new PriorityQueue<Tray>();
 		previousConfigs = new HashSet<Tray>();
-		fringe.add(start);
+		fringe.add(this.myStart);
 	}
 	
 	public void makeMove () {
