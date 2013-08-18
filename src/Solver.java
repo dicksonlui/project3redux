@@ -14,6 +14,7 @@ public class Solver {
 	private boolean printNumber = false;
 	private int numberofMoves = 0;
 	private boolean runtime = false;
+	private boolean isDone = false;
 	
 	PriorityQueue<Tray> fringe;
 	HashSet<Tray> previousConfigs;
@@ -88,27 +89,36 @@ public class Solver {
 		Tray popped = fringe.poll();
 		
 		// Checks if the popped board is complete.
-		if (isDone(popped, myGoal)) {
-			// DONE
+		if (isDone(popped, this.myGoal)) {
+			isDone = true;
 		}
-		
-		// If the Tray has already been visited, ignore it and try again.
-		while (previousConfigs.contains(popped)) {
-			popped = fringe.poll();
-		}
-		
-		// Once a new tray is found, add it to the previous configurations.
-		previousConfigs.add(popped);
-		
-		// Generate all possible moves, assign scores, and add them to the queue.
-		LinkedList<Tray> generatedMoves = popped.generateMoves();
-		for (int i = 0; i < generatedMoves.size(); i++) {
-			Tray currentTray = generatedMoves.get(i);
-			currentTray.myScore = currentTray.score(currentTray.getBlocks(), myGoal.getBlocks());
-			fringe.add(currentTray);
+		if (!isDone) {
+			// If the Tray has already been visited, ignore it and try again.
+			while (previousConfigs.contains(popped)) {
+				popped = fringe.poll();
+			}
+			
+			// Once a new tray is found, add it to the previous configurations.
+			previousConfigs.add(popped);
+			
+			// Generate all possible moves, assign scores, and add them to the queue.
+			LinkedList<Tray> generatedMoves = popped.generateMoves();
+			for (int i = 0; i < generatedMoves.size(); i++) {
+				Tray currentTray = generatedMoves.get(i);
+				currentTray.myScore = currentTray.score(currentTray.getBlocks(), myGoal.getBlocks());
+				fringe.add(currentTray);
+			}
 		}
 	}
 	
+	public boolean isDone (Tray check, Tray goal) {
+		for (Block b: goal.getBlocks()) {
+			if (!check.getBlocks().contains(b)) {
+				return false;
+			}
+		}
+		return true;
+	}
 	
 	public static void main (String [ ] args) {
 		Solver mySolver = null;
@@ -135,6 +145,9 @@ public class Solver {
 		}
 		
 		// Solve here please.
+		while (!mySolver.isDone) {
+			mySolver.makeMove();
+		}
 		
 		
 		// Print time if user passed runtime argument.
