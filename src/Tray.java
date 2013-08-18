@@ -18,7 +18,7 @@ public class Tray implements Comparable<Tray> {
 		myHeight = rows;
 		myWidth = columns;
 		myBlocks = new ArrayList<Block>(rows * columns / 2);
-		mySpace = new boolean[rows][columns];
+		mySpace = new boolean[columns][rows];
 	}
 	
 	private Tray (Tray previousTray, int move) {
@@ -52,8 +52,8 @@ public class Tray implements Comparable<Tray> {
 	public void addBlock (String block) {
 		// Block adding class used in TrayReader to populate the board.
 		Block toAdd = new Block(block);
-		for (int a = toAdd.getRow(); a < toAdd.getRow() + toAdd.getHeight(); a++) {
-			for (int b = toAdd.getCol(); b < toAdd.getCol() + toAdd.getWidth(); b++) {
+		for (int a = toAdd.getCol(); a < toAdd.getCol() + toAdd.getWidth(); a++) {
+			for (int b = toAdd.getRow(); b < toAdd.getRow() + toAdd.getHeight(); b++) {
 				this.mySpace[a][b] = true;
 			}
 		}
@@ -98,7 +98,7 @@ public class Tray implements Comparable<Tray> {
 			// If this block can move up, generate the move and add it to the LinkedList.
 			if (currBlock.getRow() != 0) {
 				for (int i = currBlock.getCol(); i < currBlock.getCol() + currBlock.getWidth(); i++) {
-					if (this.getSpace()[currBlock.getRow() - 1][i]) {
+					if (this.getSpace()[i][currBlock.getRow() - 1]) {
 						canUp = false;
 					}
 				}
@@ -110,7 +110,7 @@ public class Tray implements Comparable<Tray> {
 			// If this block can move down, generate the move and add it to the LinkedList.
 			if (currBlock.getRow() + currBlock.getHeight() < this.getHeight()) {
 				for (int i = currBlock.getCol(); i < currBlock.getCol() + currBlock.getWidth(); i++) {
-					if (this.getSpace()[currBlock.getRow() + currBlock.getHeight()][i]) {
+					if (this.getSpace()[i][currBlock.getRow() + currBlock.getHeight()]) {
 						canDown = false;
 					}
 				}
@@ -122,7 +122,7 @@ public class Tray implements Comparable<Tray> {
 			// If this block can move left, generate the move and add it to the LinkedList.
 			if (currBlock.getCol() != 0) {
 				for (int i = currBlock.getRow(); i < currBlock.getRow() + currBlock.getHeight(); i++) {
-					if (this.getSpace()[currBlock.getCol() - 1][i]) {
+					if (this.getSpace()[i][currBlock.getCol() - 1]) {
 						canLeft = false;
 					}
 				}
@@ -134,7 +134,7 @@ public class Tray implements Comparable<Tray> {
 			// If this block can move right, generate the move and add it to the LinkedList.
 			if (currBlock.getCol() + currBlock.getWidth() < this.getWidth()) {
 				for (int i = currBlock.getRow(); i < currBlock.getRow() + currBlock.getHeight(); i++) {
-					if (this.getSpace()[i][currBlock.getCol() + currBlock.getWidth()]) {
+					if (this.getSpace()[currBlock.getCol() + currBlock.getWidth()][i]) {
 						canRight = false;
 					}
 				}
@@ -187,7 +187,7 @@ public class Tray implements Comparable<Tray> {
         String string = "";
         for (int i = 0; i < myBlocks.size(); i++) {
         	Block currBlock = myBlocks.get(i);
-        	string = string + currBlock.getRow() + " " + currBlock.getCol() + " " 
+        	string = string + currBlock.getCol() + " " + currBlock.getRow() + " " 
         				    + currBlock.getHeight() + " " + currBlock.getWidth() + "\n";
         }     
         return string;
