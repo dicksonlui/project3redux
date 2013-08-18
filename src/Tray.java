@@ -21,11 +21,133 @@ public class Tray implements Comparable<Tray> {
 		mySpace = new boolean[columns][rows];
 	}
 	
-	private Tray (Tray previousTray, int move) {
+	private Tray (Tray previousTray, int direction, Block toBeMoved) {
 		// Constructs a board given an existing board and a move.
-		myHeight = previousTray.getHeight();
-		myWidth = previousTray.getWidth();
+		this.myHeight = previousTray.getHeight();
+		this.myWidth = previousTray.getWidth();
+		this.myBlocks = previousTray.getBlocks();
+		this.mySpace = previousTray.getSpace();
+
 		
+		// Generating an upwards move.
+		if (direction == 1) {
+			for (int i = toBeMoved.getCol(); i < toBeMoved.getCol() + toBeMoved.getWidth(); i++) {
+				// Modify the boolean array to reflect the shifting of a block.
+				this.mySpace[i][toBeMoved.getRow() - 1] = true;
+				this.mySpace[i][toBeMoved.getRow() + toBeMoved.getHeight() - 1] = false;
+			}
+			// Change corner instance variable on Block.
+			int row = this.myBlocks.get(this.myBlocks.indexOf(toBeMoved)).getRow();
+			this.myBlocks.get(this.myBlocks.indexOf(toBeMoved)).setRow(row - 1);
+		}
+		
+		// Generating a downwards move
+		if (direction == 2) {
+			for (int i = toBeMoved.getCol(); i < toBeMoved.getCol() + toBeMoved.getWidth(); i++) {
+				// Modify the boolean array to reflect the shifting of a block.
+				this.mySpace[i][toBeMoved.getRow() + toBeMoved.getHeight()] = true;
+				this.mySpace[i][toBeMoved.getRow()] = false;
+			}
+			// Change corner instance variable on Block.
+			int row = this.myBlocks.get(this.myBlocks.indexOf(toBeMoved)).getRow();
+			this.myBlocks.get(this.myBlocks.indexOf(toBeMoved)).setRow(row + 1);
+		}
+		
+		
+		// Generating a leftward move
+		if (direction == 3) {
+			for (int i = toBeMoved.getRow(); i < toBeMoved.getRow() + toBeMoved.getHeight(); i++) {
+				// Modify the boolean array to reflect the shifting of a block.
+				this.mySpace[toBeMoved.getCol() - 1][i] = true;
+				this.mySpace[toBeMoved.getCol() + toBeMoved.getWidth() - 1][i] = false;
+			}
+			// Change corner instance variable on Block.
+			int col = this.myBlocks.get(this.myBlocks.indexOf(toBeMoved)).getCol();
+			this.myBlocks.get(this.myBlocks.indexOf(toBeMoved)).setCol(col - 1);
+		}
+		
+		// Generating a rightward move
+		if (direction == 4) {
+			for (int i = toBeMoved.getRow(); i < toBeMoved.getRow() + toBeMoved.getHeight(); i++) {
+				// Modify the boolean array to reflect the shifting of a block.
+				this.mySpace[toBeMoved.getCol() + toBeMoved.getWidth()][i] = true;
+				this.mySpace[toBeMoved.getCol()][i] = false;
+			}
+			// Change corner instance variable on Block.
+			int col = this.myBlocks.get(this.myBlocks.indexOf(toBeMoved)).getCol();
+			this.myBlocks.get(this.myBlocks.indexOf(toBeMoved)).setCol(col + 1);
+		}
+		
+		// After moving blocks, sort them.
+		this.sortBlocks();
+	}
+			
+			
+	public LinkedList<Tray> generateMoves () {
+		// When called on a tray, generates a Linked List structure with every possible tray
+		// configuration that could result from moving a block.
+		LinkedList<Tray> possibleTrays = new LinkedList<Tray>();
+				
+		for (Block currBlock: this.getBlocks()) {
+					
+			boolean canUp = true;
+			boolean canDown = true;
+			boolean canLeft = true;
+			boolean canRight = true;
+					
+			// If this block can move up, generate the move and add it to the LinkedList.
+			if (currBlock.getRow() != 0) {
+				for (int i = currBlock.getCol(); i < currBlock.getCol() + currBlock.getWidth(); i++) {
+					if (this.getSpace()[i][currBlock.getRow() - 1]) {
+						canUp = false;
+					}
+				}
+				if (canUp) {
+					// Generate move here.
+					possibleTrays.add(new Tray(this, 1, currBlock));
+				}
+			}
+					
+			// If this block can move down, generate the move and add it to the LinkedList.
+			if (currBlock.getRow() + currBlock.getHeight() < this.getHeight()) {
+				for (int i = currBlock.getCol(); i < currBlock.getCol() + currBlock.getWidth(); i++) {
+					if (this.getSpace()[i][currBlock.getRow() + currBlock.getHeight()]) {
+						canDown = false;
+					}
+				}
+				if (canDown) {
+					// Generate move here.
+					possibleTrays.add(new Tray(this, 2, currBlock));
+				}
+			}
+					
+			// If this block can move left, generate the move and add it to the LinkedList.
+			if (currBlock.getCol() != 0) {
+				for (int i = currBlock.getRow(); i < currBlock.getRow() + currBlock.getHeight(); i++) {
+					if (this.getSpace()[currBlock.getCol() - 1][i]) {
+						canLeft = false;
+					}
+				}
+				if (canLeft) {
+					// Generate move here.
+					possibleTrays.add(new Tray(this, 3, currBlock));
+				}
+			}
+			
+			// If this block can move right, generate the move and add it to the LinkedList.
+			if (currBlock.getCol() + currBlock.getWidth() < this.getWidth()) {
+				for (int i = currBlock.getRow(); i < currBlock.getRow() + currBlock.getHeight(); i++) {
+					if (this.getSpace()[currBlock.getCol() + currBlock.getWidth()][i]) {
+						canRight = false;
+					}
+						}
+				if (canRight) {
+					// Generate move here.
+					possibleTrays.add(new Tray(this, 4, currBlock));
+				}
+			}			
+		}
+		return possibleTrays;
 	}
 	
 	public ArrayList<Block> getBlocks () {
@@ -83,69 +205,6 @@ public class Tray implements Comparable<Tray> {
 		this.myBlocks = tempBlocks;
 	}
 	
-	public LinkedList<Tray> generateMoves () {
-		// When called on a tray, generates a Linked List structure with every possible tray
-		// configuration that could result from moving a block.
-		LinkedList<Tray> possibleTrays = new LinkedList<Tray>();
-		
-		for (Block currBlock: this.getBlocks()) {
-			
-			boolean canUp = true;
-			boolean canDown = true;
-			boolean canLeft = true;
-			boolean canRight = true;
-			
-			// If this block can move up, generate the move and add it to the LinkedList.
-			if (currBlock.getRow() != 0) {
-				for (int i = currBlock.getCol(); i < currBlock.getCol() + currBlock.getWidth(); i++) {
-					if (this.getSpace()[i][currBlock.getRow() - 1]) {
-						canUp = false;
-					}
-				}
-				if (canUp) {
-					// Generate move here.
-				}
-			}
-			
-			// If this block can move down, generate the move and add it to the LinkedList.
-			if (currBlock.getRow() + currBlock.getHeight() < this.getHeight()) {
-				for (int i = currBlock.getCol(); i < currBlock.getCol() + currBlock.getWidth(); i++) {
-					if (this.getSpace()[i][currBlock.getRow() + currBlock.getHeight()]) {
-						canDown = false;
-					}
-				}
-				if (canDown) {
-					// Generate move here.
-				}
-			}
-			
-			// If this block can move left, generate the move and add it to the LinkedList.
-			if (currBlock.getCol() != 0) {
-				for (int i = currBlock.getRow(); i < currBlock.getRow() + currBlock.getHeight(); i++) {
-					if (this.getSpace()[i][currBlock.getCol() - 1]) {
-						canLeft = false;
-					}
-				}
-				if (canLeft) {
-					// Generate move here.
-				}
-			}
-			
-			// If this block can move right, generate the move and add it to the LinkedList.
-			if (currBlock.getCol() + currBlock.getWidth() < this.getWidth()) {
-				for (int i = currBlock.getRow(); i < currBlock.getRow() + currBlock.getHeight(); i++) {
-					if (this.getSpace()[currBlock.getCol() + currBlock.getWidth()][i]) {
-						canRight = false;
-					}
-				}
-				if (canRight) {
-					// Generate move here.
-				}
-			}			
-		}
-		return possibleTrays;
-	}
-	
 	public int score (ArrayList<Block> current, ArrayList<Block> goal) {
 		// Scores the Tray based on how close the current board configuration is to the goal board
 		// configuration. This will help us implement our comparable interface to determine the best
@@ -197,6 +256,11 @@ public class Tray implements Comparable<Tray> {
         // Override object equals method by checking if Strings are the same
         // Every Tray + block configuration should be different if valid Tray
         return this.myBlocks.toString() == ((Tray)obj).myBlocks.toString();
+    }
+    
+    public int hashCode(){
+    	// Override object hash code with hash code of toString.
+    	return this.toString().hashCode();
     }
 
 }
